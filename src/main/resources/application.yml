@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: fileprocessor-ms
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/fileProcessor-ms
+      database: fileProcessor-ms
