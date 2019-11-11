@@ -12,4 +12,5 @@ public interface SalesmanRepository extends CrudRepository<Salesman, String> {
 
 	List<Salesman> findSalesmanByFilename(String filename);
 
+	List<Salesman> findSalesmanByFilenameAndName(String filename, String name);
 }

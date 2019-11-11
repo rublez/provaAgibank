@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
@@ -91,6 +92,11 @@ public class FileReaderServiceImpl implements FileReaderService {
 			File file = new File(pathFile);
 			records = FileUtils.readLines(file, StandardCharsets.UTF_8.name());
 
+			// remove eventual empty lines
+			records = records.stream()
+					.filter(x -> x != null && !x.equals(""))
+					.collect(Collectors.toList());
+		
 		} catch (Exception e) {
 			log.error("Error reading file: {}", e);
 

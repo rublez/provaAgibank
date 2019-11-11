@@ -5,9 +5,12 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.DoubleSummaryStatistics;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
@@ -17,6 +20,7 @@ import org.springframework.stereotype.Component;
 
 import br.com.agibank.fileprocessor.domain.Item;
 import br.com.agibank.fileprocessor.domain.Sale;
+import br.com.agibank.fileprocessor.domain.Salesman;
 import br.com.agibank.fileprocessor.repository.ClientRepository;
 import br.com.agibank.fileprocessor.repository.SaleRepository;
 import br.com.agibank.fileprocessor.repository.SalesmanRepository;
@@ -100,39 +104,68 @@ public class FileReportWriterImpl implements FileReportWriter {
 	}
 
 	private Map<String, Object> findWorstAndBetterSale(String filename) {
-		List<Sale> sales = saleRepository.findSaleByFilename(filename);
+		List<String> salesmen = ((List<Salesman>) (salesmanRepository.findSalesmanByFilename(filename))).stream()
+				.map(slm -> slm.getName()).collect(Collectors.toList());
 		Map<String, Object> results = new HashMap<>();
-
-		Double bestSale = 0.0;
+		Map<String, List<Double>> salesmanSales = getSalesmanSales(filename, salesmen, results);
 		Double worstSale = 0.0;
 		String worstSalesman = null;
-		Long bestSaleId = 0L;
+		for (String salesmanName : salesmen) {
+			DoubleSummaryStatistics stats = salesmanSales.get(salesmanName).stream().mapToDouble((x) -> x)
+					.summaryStatistics();
 
-		for (Sale sale : sales) {
-			List<Item> items = sale.getItems();
-			Double salesValue = 0.0;
-			for (Item item : items)
-				salesValue = item.getItemQty() * item.getPrice();
+			if (stats.getSum() == 0) {
+				worstSale = -1.0;
+				worstSalesman = salesmanName;
 
-			if (salesValue > bestSale) {
-				bestSale = salesValue;
-				bestSaleId = sale.getSaleId();
-
-			}
-
-			if (worstSale == 0.0 || salesValue < worstSale) {
-				worstSale = salesValue;
-				worstSalesman = sale.getSalesmanName();
+			} else if (worstSale == 0.0 || stats.getSum() < worstSale) {
+				worstSale = stats.getSum();
+				worstSalesman = salesmanName;
 
 			}
 
 		}
 		results.put("worstSalesman", worstSalesman);
-		results.put("bestSaleId", bestSaleId);
 
-		log.info("Best sale value: ${}", bestSale);
 		return results;
 
+	}
+
+	private Map<String, List<Double>> getSalesmanSales(String filename, List<String> salesmen,
+			Map<String, Object> results) {
+
+		Double bestSale = 0.0;
+		Long bestSaleId = 0L;
+		Map<String, List<Double>> salesmanSales = new HashMap<>();
+
+		for (String salesmanName : salesmen) {
+			List<Double> salesBySalesman = new ArrayList<Double>();
+
+			// get all sales by each salesman
+			List<Sale> sales = saleRepository.findSaleByFilenameAndSalesmanName(filename, salesmanName);
+			Double salesValue = 0.0;
+			for (Sale sale : sales) {
+				List<Item> items = sale.getItems();
+				for (Item item : items) {
+					salesValue = item.getItemQty() * item.getPrice();
+					salesBySalesman.add(salesValue);
+
+				}
+				if (salesValue > bestSale) {
+					bestSale = salesValue;
+					bestSaleId = sale.getSaleId();
+
+				}
+
+			}
+			salesmanSales.put(salesmanName, salesBySalesman);
+
+		}
+		results.put("bestSaleId", bestSaleId);
+
+		log.info("Salesman sales: {}", salesmanSales);
+		return salesmanSales;
+		
 	}
 
 }

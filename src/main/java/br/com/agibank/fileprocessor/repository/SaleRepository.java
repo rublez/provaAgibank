@@ -11,5 +11,7 @@ import br.com.agibank.fileprocessor.domain.Sale;
 public interface SaleRepository extends CrudRepository<Sale, Long> {
 
 	List<Sale> findSaleByFilename(String filename);
+	
+	List<Sale> findSaleByFilenameAndSalesmanName(String filename, String salesmanName);
 
 }
