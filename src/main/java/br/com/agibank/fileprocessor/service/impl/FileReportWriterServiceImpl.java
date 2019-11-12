@@ -24,11 +24,11 @@ import br.com.agibank.fileprocessor.domain.Salesman;
 import br.com.agibank.fileprocessor.repository.ClientRepository;
 import br.com.agibank.fileprocessor.repository.SaleRepository;
 import br.com.agibank.fileprocessor.repository.SalesmanRepository;
-import br.com.agibank.fileprocessor.service.FileReportWriter;
+import br.com.agibank.fileprocessor.service.FileReportWriterService;
 
 @Component
-public class FileReportWriterImpl implements FileReportWriter {
-	private static final Logger log = LoggerFactory.getLogger(FileReportWriterImpl.class);
+public class FileReportWriterServiceImpl implements FileReportWriterService {
+	private static final Logger log = LoggerFactory.getLogger(FileReportWriterServiceImpl.class);
 
 	@Autowired
 	private SalesmanRepository salesmanRepository;
@@ -40,7 +40,7 @@ public class FileReportWriterImpl implements FileReportWriter {
 	private SaleRepository saleRepository;
 
 	@Override
-	public void generateReport(String filename, String fullPath, String separator) {
+	public String generateReport(String filename, String fullPath, String separator) {
 
 		Long nrClients = countClients(filename);
 		Long nrSalesman = countSalesman(filename);
@@ -58,9 +58,11 @@ public class FileReportWriterImpl implements FileReportWriter {
 		report.append("Worst Salesman in file: " + worstSalesman + "\n");
 
 		log.info("Report: \n{}", report);
-
+		
 		String fullFilename = buildUrl(fullPath, filename, separator);
 		writaDataOnFile(report, fullFilename);
+		
+		return report.toString();
 
 	}
 

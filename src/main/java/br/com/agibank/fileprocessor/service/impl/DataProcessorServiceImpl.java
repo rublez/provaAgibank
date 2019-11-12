@@ -136,8 +136,8 @@ public class DataProcessorServiceImpl implements DataProcessorService {
 	private List<Item> splitItems(String itemsString) {
 		List<Item> items = new ArrayList<>();
 
-		String itemsRaw = itemsString.replace("[", "").replace("]", ""); 						// os ítens na Sale, sem os colchetes
-		List<String> itemsRawSplitted = new ArrayList<>(Arrays.asList(itemsRaw.split(","))); 	// os campos do item
+		String itemsRaw = itemsString.replace("[", "").replace("]", ""); 	// os ítens na Sale, sem os colchetes
+		List<String> itemsRawSplitted = new ArrayList<>(Arrays.asList(itemsRaw.split(","))); 				// os campos do item
 
 		for (String itemStr : itemsRawSplitted) {
 
