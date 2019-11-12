@@ -20,6 +20,7 @@ import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -27,6 +28,7 @@ import br.com.agibank.fileprocessor.service.DataProcessorService;
 import br.com.agibank.fileprocessor.service.FileReaderService;
 import br.com.agibank.fileprocessor.service.FileReportWriterService;
 
+@Profile("default")
 @Service
 public class FileReaderServiceImpl implements FileReaderService {
 
@@ -68,7 +70,8 @@ public class FileReaderServiceImpl implements FileReaderService {
 
 	}
 
-	synchronized void processFiles(String filename, Path path, String separator) throws Exception {
+	@Override
+	public synchronized String processFiles(String filename, Path path, String separator) throws Exception {
 		String fullPath = path.toString() + separator + "in" + separator + filename;
 		log.info("File: {}", fullPath);
 
@@ -83,6 +86,7 @@ public class FileReaderServiceImpl implements FileReaderService {
 			renameFileProcessed(fullPath);
 
 		}
+		return null;
 
 	}
 
@@ -96,7 +100,7 @@ public class FileReaderServiceImpl implements FileReaderService {
 			records = records.stream()
 					.filter(x -> x != null && !x.equals(""))
 					.collect(Collectors.toList());
-		
+
 		} catch (Exception e) {
 			log.error("Error reading file: {}", e);
 
@@ -121,6 +125,12 @@ public class FileReaderServiceImpl implements FileReaderService {
 			log.error("Error renaming processed file: {}", e);
 
 		}
+
+	}
+
+	@Override
+	public String testString() {
+		return null;
 
 	}
 
