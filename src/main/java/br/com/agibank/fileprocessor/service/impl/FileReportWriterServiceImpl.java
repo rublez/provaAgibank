@@ -24,11 +24,11 @@ import br.com.agibank.fileprocessor.domain.Salesman;
 import br.com.agibank.fileprocessor.repository.ClientRepository;
 import br.com.agibank.fileprocessor.repository.SaleRepository;
 import br.com.agibank.fileprocessor.repository.SalesmanRepository;
-import br.com.agibank.fileprocessor.service.FileReportWriter;
+import br.com.agibank.fileprocessor.service.FileReportWriterService;
 
 @Component
-public class FileReportWriterImpl implements FileReportWriter {
-	private static final Logger log = LoggerFactory.getLogger(FileReportWriterImpl.class);
+public class FileReportWriterServiceImpl implements FileReportWriterService {
+	private static final Logger log = LoggerFactory.getLogger(FileReportWriterServiceImpl.class);
 
 	@Autowired
 	private SalesmanRepository salesmanRepository;

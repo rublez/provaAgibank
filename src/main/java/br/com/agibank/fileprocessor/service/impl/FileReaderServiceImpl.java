@@ -25,7 +25,7 @@ import org.springframework.util.CollectionUtils;
 
 import br.com.agibank.fileprocessor.service.DataProcessorService;
 import br.com.agibank.fileprocessor.service.FileReaderService;
-import br.com.agibank.fileprocessor.service.FileReportWriter;
+import br.com.agibank.fileprocessor.service.FileReportWriterService;
 
 @Service
 public class FileReaderServiceImpl implements FileReaderService {
@@ -36,7 +36,7 @@ public class FileReaderServiceImpl implements FileReaderService {
 	private DataProcessorService dataProcessorService;
 
 	@Autowired
-	private FileReportWriter fileReportWriter;
+	private FileReportWriterService fileReportWriter;
 
 	@Override
 	public void folderWatcher() throws Exception {

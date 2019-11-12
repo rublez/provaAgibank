@@ -1,6 +1,6 @@
 package br.com.agibank.fileprocessor.service;
 
-public interface FileReportWriter {
+public interface FileReportWriterService {
 
 	void generateReport(String filename, String fullPath, String separator);
 
