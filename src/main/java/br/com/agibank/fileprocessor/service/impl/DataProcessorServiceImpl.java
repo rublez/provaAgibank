@@ -66,28 +66,36 @@ public class DataProcessorServiceImpl implements DataProcessorService {
 
 	private void processSalesman(String record, String filename) {
 		String[] values = splitValues(record);
-		Salesman salesman = new Salesman();
+		Salesman salesman;
 
-		if (values.length == 4) {
-			salesman = new SalesmanBuilder()
-						.withCpf(values[1])
-						.withName(values[2])
-						.withSalary(Double.valueOf(values[3]))
-						.withFilename(filename)
-					.build();
+		try {
+			Double salary = Double.valueOf(values[3]);
 
-			log.info("Salesman: {}", salesman);
-			salesmanRepository.save(salesman);
+			if (values.length == 4 && Double.valueOf(values[3]) instanceof Double) {
+				salesman = new SalesmanBuilder()
+							.withCpf(values[1])
+							.withName(values[2])
+							.withSalary(salary)
+							.withFilename(filename)
+						.build();
+
+				log.info("Salesman: {}", salesman);
+				salesmanRepository.save(salesman);
+
+			}
+			else
+				throw new Exception("Less fields than expected.");
+
+		} catch (Exception e) {
+			log.warn("Salesman register is corrupted: {}", e.getMessage());
 
 		}
-		else
-			log.warn("Salesman register is corrupted.");
 
 	}
 
 	private void processClient(String record, String filename) {
 		String[] values = splitValues(record);
-		Client client = new Client();
+		Client client;
 
 		if (values.length == 4) {
 			client = new ClientBuilder()
@@ -146,18 +154,28 @@ public class DataProcessorServiceImpl implements DataProcessorService {
 			//items = fields.stream().map(Item::new).collect(Collectors.toList());
 
 			String[] fields = itemStr.split("-");
-			if(fields.length == 3) {
-				Item item = new ItemBuilder()
-						.withItemId(Long.valueOf(fields[0]))
-						.withItemQty(Integer.valueOf(fields[1]))
-						.withPrice(Double.valueOf(fields[2]))
-					.build();
 
-				items.add(item);
+			try {
+				if(fields.length == 3) {
+
+					Integer qty = Integer.valueOf(fields[1]);
+					Double price = Double.valueOf(fields[2]);
+					Item item = new ItemBuilder()
+							.withItemId(Long.valueOf(fields[0]))
+							.withItemQty(qty)
+							.withPrice(price)
+							.build();
+
+					items.add(item);
+
+				}
+				else
+					throw new Exception("Less field sthan expected.");
+
+			} catch (Exception e) {
+				log.warn("Item is corrupted: {}", e.getMessage());
 
 			}
-			else
-				log.warn("Item is corrupted.");
 
 		}
 		return items;

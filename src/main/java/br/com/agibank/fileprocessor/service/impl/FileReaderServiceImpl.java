@@ -49,8 +49,8 @@ public class FileReaderServiceImpl implements FileReaderService {
 		// Creates directory if not exists
 		FileUtils.forceMkdir(new File(System.getProperty(home) + "/data/in"));
 
-		Path path = Paths.get(System.getProperty(home) + "/data");
-		Path in = Paths.get(System.getProperty(home) + "/data/in");
+		Path path = Paths.get(home + "/data");
+		Path in = Paths.get(home + "/data/in");
 
 		in.register(watchService, StandardWatchEventKinds.ENTRY_CREATE);
 
