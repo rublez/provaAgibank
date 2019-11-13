@@ -20,7 +20,6 @@ import org.springframework.stereotype.Component;
 
 import br.com.agibank.fileprocessor.domain.Item;
 import br.com.agibank.fileprocessor.domain.Sale;
-import br.com.agibank.fileprocessor.domain.Salesman;
 import br.com.agibank.fileprocessor.repository.ClientRepository;
 import br.com.agibank.fileprocessor.repository.SaleRepository;
 import br.com.agibank.fileprocessor.repository.SalesmanRepository;
@@ -40,7 +39,7 @@ public class FileReportWriterServiceImpl implements FileReportWriterService {
 	private SaleRepository saleRepository;
 
 	@Override
-	public void generateReport(String filename, String fullPath, String separator) {
+	public String generateReport(String filename, String fullPath, String separator) {
 
 		Long nrClients = countClients(filename);
 		Long nrSalesman = countSalesman(filename);
@@ -61,6 +60,8 @@ public class FileReportWriterServiceImpl implements FileReportWriterService {
 
 		String fullFilename = buildUrl(fullPath, filename, separator);
 		writaDataOnFile(report, fullFilename);
+
+		return report.toString();
 
 	}
 
@@ -104,7 +105,7 @@ public class FileReportWriterServiceImpl implements FileReportWriterService {
 	}
 
 	private Map<String, Object> findWorstAndBetterSale(String filename) {
-		List<String> salesmen = ((List<Salesman>) (salesmanRepository.findSalesmanByFilename(filename))).stream()
+		List<String> salesmen = (salesmanRepository.findSalesmanByFilename(filename)).stream()
 				.map(slm -> slm.getName()).collect(Collectors.toList());
 		Map<String, Object> results = new HashMap<>();
 		Map<String, List<Double>> salesmanSales = getSalesmanSales(filename, salesmen, results);
@@ -139,7 +140,7 @@ public class FileReportWriterServiceImpl implements FileReportWriterService {
 		Map<String, List<Double>> salesmanSales = new HashMap<>();
 
 		for (String salesmanName : salesmen) {
-			List<Double> salesBySalesman = new ArrayList<Double>();
+			List<Double> salesBySalesman = new ArrayList<>();
 
 			// get all sales by each salesman
 			List<Sale> sales = saleRepository.findSaleByFilenameAndSalesmanName(filename, salesmanName);
@@ -165,7 +166,7 @@ public class FileReportWriterServiceImpl implements FileReportWriterService {
 
 		log.info("Salesman sales: {}", salesmanSales);
 		return salesmanSales;
-		
+
 	}
 
 }

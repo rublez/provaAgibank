@@ -3,13 +3,7 @@ package br.com.agibank.fileprocessor.service.impl;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.FileSystems;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardWatchEventKinds;
-import java.nio.file.WatchEvent;
-import java.nio.file.WatchKey;
-import java.nio.file.WatchService;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -28,11 +22,10 @@ import br.com.agibank.fileprocessor.service.DataProcessorService;
 import br.com.agibank.fileprocessor.service.FileReaderService;
 import br.com.agibank.fileprocessor.service.FileReportWriterService;
 
-@Profile("default")
+@Profile("test")
 @Service
-public class FileReaderServiceImpl implements FileReaderService {
-
-	private static final Logger log = LoggerFactory.getLogger(FileReaderServiceImpl.class);
+public class FileReaderTestServiceImpl implements FileReaderService {
+	private static final Logger log = LoggerFactory.getLogger(FileReaderTestServiceImpl.class);
 
 	@Autowired
 	private DataProcessorService dataProcessorService;
@@ -42,40 +35,17 @@ public class FileReaderServiceImpl implements FileReaderService {
 
 	@Override
 	public void folderWatcher() throws Exception {
-		WatchService watchService = FileSystems.getDefault().newWatchService();
-		String separator = FileSystems.getDefault().getSeparator();
-		String home = FileUtils.getUserDirectoryPath();
-
-		// Creates directory if not exists
-		FileUtils.forceMkdir(new File(System.getProperty(home) + "/data/in"));
-
-		Path path = Paths.get(System.getProperty(home) + "/data");
-		Path in = Paths.get(System.getProperty(home) + "/data/in");
-
-		in.register(watchService, StandardWatchEventKinds.ENTRY_CREATE);
-
-		WatchKey key;
-		while ((key = watchService.take()) != null) {
-			for (WatchEvent<?> event : key.pollEvents()) {
-				String filename = event.context().toString();
-				String extension = filename.substring(filename.lastIndexOf('.'));
-				if (event.kind().name().equalsIgnoreCase("ENTRY_CREATE") && extension.equalsIgnoreCase(".dat"))
-					processFiles(filename, path, separator);
-
-			}
-			key.reset();
-
-		}
-		log.warn("Left event while.");
+		log.info("Tests running!");
 
 	}
 
 	@Override
-	public synchronized String processFiles(String filename, Path path, String separator) throws Exception {
+	public String processFiles(String filename, Path path, String separator) throws Exception {
 		String fullPath = path.toString() + separator + "in" + separator + filename;
 		log.info("File: {}", fullPath);
-		String report = null;
+
 		List<String> records = readFile(fullPath);
+		String report = null;
 
 		// process records read
 		if (!CollectionUtils.isEmpty(records)) {
@@ -97,9 +67,7 @@ public class FileReaderServiceImpl implements FileReaderService {
 			records = FileUtils.readLines(file, StandardCharsets.UTF_8.name());
 
 			// remove eventual empty lines
-			records = records.stream()
-					.filter(x -> x != null && !x.equals(""))
-					.collect(Collectors.toList());
+			records = records.stream().filter(x -> x != null && !x.equals("")).collect(Collectors.toList());
 
 		} catch (Exception e) {
 			log.error("Error reading file: {}", e);
